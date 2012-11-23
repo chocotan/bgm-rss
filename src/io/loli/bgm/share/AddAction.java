@@ -15,15 +15,28 @@ import org.apache.log4j.Logger;
 
 import com.opensymphony.xwork2.ActionSupport;
 
+/*
+ * @author choco(uzumakitenye@gmail.com)
+ */
 @SuppressWarnings("serial")
 public class AddAction extends ActionSupport{
+	//log4j输出信息
 	private static Logger logger=LogManager.getLogger(AddAction.class);
+	//用户信息保存的文件
 	private static File uf = new File("/home/choco/soft/bangumi/bgm-users.xml");
 	private static UserService us = new UserService();
+	//用户的bangumi帐号id
 	private String id;
+	//新浪认证返回的code
 	private String code;
+	//用户的email
 	private String email;
+	/*
+	 * 添加一个用户
+	 * @see com.opensymphony.xwork2.ActionSupport#execute()
+	 */
 	public String execute(){
+		//判断是否已经存在此用户
 		Iterator<UserAction> itr=UserService.getUsers().iterator();
 		while(itr.hasNext()){
 			UserAction ua=itr.next();
@@ -32,7 +45,7 @@ public class AddAction extends ActionSupport{
 				return ERROR;
 			}
 		}
-		
+		//如果不存在此用户
 		logger.info(email+"已添加");
 	  	UserAction ua=new UserAction();
 	  	ua.setRss(id);
@@ -44,6 +57,7 @@ public class AddAction extends ActionSupport{
 	  	ui.setAccess_token(ua.getUser().getAccess_token());
 	  	ui.setEmail(ua.getEmail());
 	  	ui.setId(ua.getRss());
+	  	//读取xml文件将新建的用户保存进去
 	  	JAXBContext context;
 		UserInfoList uil=null;
 		Unmarshaller u =null;
@@ -75,6 +89,10 @@ public class AddAction extends ActionSupport{
 		}
 	  	return SUCCESS;
 	}
+	/*
+	 * 删除指定email的用户
+	 * @return String
+	 */
 	public String remove(){
 		Iterator<UserAction> itr=UserService.getUsers().iterator();
 		while(itr.hasNext()){

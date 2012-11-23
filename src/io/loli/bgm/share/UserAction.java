@@ -25,13 +25,23 @@ import com.google.gson.reflect.TypeToken;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 
+/*
+ * 用户的Bean类...(类名有些误导人)
+ * @author choco(uzumakitenye@gmail.com)
+ */
 public class UserAction {
 	private static Logger logger=LogManager.getLogger(UserAction.class);
+	//解析json所用的
 	private static Gson gson=new GsonBuilder().create();
+
 	private User user;
+	//用户的bangumi帐号id
 	private String rss;
+	//接收过来的feed
 	private SyndFeed feed;
+	//用户的email
 	private String email;
+	//用户最近一次发布的内容
 	private String lastUpdate;
 	public User getUser() {
 		return user;
@@ -51,69 +61,101 @@ public class UserAction {
 	public void setEmail(String email) {
 		this.email = email;
 	}
+	//上一次读取的feed
 	private SyndFeed oldFeed;
+	
+	/*
+	 * 发布一条微博
+	 */
 	@SuppressWarnings("unchecked")
 	public void execute(){
+		//获取已经更改过标题和内容的rss
 		feed=RssFactory.getUpdatedFeed(rss);
+		//items列表
 		List<SyndEntry> entries = feed.getEntries();
+		//临时存储的列表，根据lastUpdate来确定哪些是已经发不过的微博
 		List<SyndEntry> tempEntries = new ArrayList<SyndEntry>();
 		Iterator<SyndEntry> itr = entries.iterator();
 		int count=0;
+		//遍历items
 		while(itr.hasNext()){
 			SyndEntry se = itr.next();
 			count++;
+			//如果标题相等，则在这之后的所有items都是未发布的
 			if(lastUpdate!=null&&lastUpdate.trim().equals(se.getTitle().trim())){
 				while(itr.hasNext()){
 					tempEntries.add(itr.next());
 				}
 			}
+			//如果从未进入过上面的if语句 即count和entires的size相等，则所有的items都是未发布过的
 			if(count==entries.size()){
 				tempEntries=entries;
 			}
 		}
+		/*
+		 * 根据上次获取的feed和上面的tempEntries来判断哪些是已经发布过的微博
+		 * 一直遍历新items直到和旧feed的items的第一项的标题相等
+		 */
 		if(oldFeed!=null){
-		List<SyndEntry> oldEntries = oldFeed.getEntries();
-		for(int i=0;i<tempEntries.size();i++){
-			if(!tempEntries.get(i).getTitle().equals(oldEntries.get(0).getTitle())){
-				if(i!=0){
-					try {
-						TimeUnit.SECONDS.sleep(120);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
+			List<SyndEntry> oldEntries = oldFeed.getEntries();
+			for(int i=0;i<tempEntries.size();i++){
+				if(!tempEntries.get(i).getTitle().equals(oldEntries.get(0).getTitle())){
+					if(i!=0){
+						try {
+							TimeUnit.SECONDS.sleep(120);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 					}
+					logger.info(email+":"+update("#"+feed.getTitle().trim()+"#"+tempEntries.get(i).getTitle()+" "+tempEntries.get(i).getLink()));
+				}else{
+					break;
 				}
-				logger.info(email+":"+update("#"+feed.getTitle().trim()+"#"+tempEntries.get(i).getTitle()+" "+tempEntries.get(i).getLink()));
-			}else{
-				break;
 			}
-		}
 		}else{
+			//如果是第一次获取feed
 			for(int i=0;i<tempEntries.size();i++){
 				if(i!=0){
 					try {
+						//一分钟发一条，新浪微博的限制是一小时30条
 						TimeUnit.SECONDS.sleep(60);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 				}
+				//将即将发布的content赋值给lastUpdate
 				this.lastUpdate=tempEntries.get(i).getTitle();
+				//根据指定email更新xml文件中的lastUpdate
 				updateXml(lastUpdate,email);
+				//发布微薄并将返回值记录到log
 				logger.info(email+":"+update("#"+feed.getTitle().trim()+"#"+tempEntries.get(i).getTitle()+" "+tempEntries.get(i).getLink()));
 			}
 		}
 		
 		oldFeed=feed;
 	}
+	
+	/*
+	 * 根据content发布一条微博
+	 * @param content 发布微博的内容
+	 * @return String 服务器返回的内容
+	 */
 	public String update(String content){
 		List<NameValuePair> list = new ArrayList<NameValuePair>();
 		list.add(new BasicNameValuePair("access_token",user.getAccess_token()));
 		list.add(new BasicNameValuePair("status",content));
 		return Oauth.getString(Oauth.UPDATE_URL, list);
 	}
+	
 	private static JAXBContext context=null;
 	private static Unmarshaller u =null;
 	private static Marshaller m =null;
 	private static File uf =  new File("/home/choco/soft/bangumi/bgm-users.xml");
+	/*
+	 * 根据指定email更新xml文件中的lastUpdate
+	 * @param content lastUpdate的内容
+	 * @param email 指定的email
+	 */
 	public void updateXml(String content,String email){
 		UserInfoList uil=null;
 		try{
@@ -142,7 +184,11 @@ public class UserAction {
 			}
 		}
 	}
-	
+	/*
+	 * 根据认证code获取access_token等信息
+	 * @param code 认证code
+	 * @return User
+	 */
 	public User getNewUser(String code){
 		List<NameValuePair> list = new ArrayList<NameValuePair>();
 		list.add(new BasicNameValuePair("client_id",Oauth.APPKEY));

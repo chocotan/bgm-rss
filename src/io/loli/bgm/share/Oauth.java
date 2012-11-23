@@ -15,6 +15,10 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
+/*
+ * 与新浪微博认证有关的方法类
+ * @author choco(uzumakitenye@gmail.com)
+ */
 public class Oauth {
 	//你的应用的appkey
 	public static final String APPKEY = "3616446582";
@@ -26,6 +30,7 @@ public class Oauth {
 	public static final String REDIRECTED_URL = "http://bgm-rss.loli.io/code.jsp";
 	public static final String UPDATE_URL = "https://api.weibo.com/2/statuses/update.json";
 	/*
+	 * 将list参数post提交到指定url
 	 * @param url 请求地址
 	 * @param list post提交的参数
 	 * @return String 服务器返回值

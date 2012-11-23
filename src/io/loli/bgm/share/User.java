@@ -1,5 +1,9 @@
 package io.loli.bgm.share;
 
+/* 
+ * 认证后返回的access_token以及其他信息
+ * @author choco(uzumakitenye@gmail.com)
+ */
 public class User {
 	private String access_token;
 	private String expires_in;

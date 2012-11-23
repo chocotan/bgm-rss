@@ -2,6 +2,9 @@ package io.loli.bgm.share;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+/*
+ * @author choco(uzumakitenye@gmail.com)
+ */
 @XmlRootElement
 public class UserInfo {
 	private String email;
