@@ -4,3 +4,13 @@ bangumi的rss同步到新浪微博的小工具
   输出的rss和官方rss的不同处在于标题和内容中多了动画名(原rss类似"看过ep."这种不显示番组名)
 2.同步到新浪微博
 测试地址:http://bgm-rss.loli.io
+
+用到的jar有：
+struts2框架相关的jar
+log4j-1.2
+httpclient-4.2
+gson-2.2.2
+jdon-1.1.3
+改进版的rome
+
+具体见lib目录
