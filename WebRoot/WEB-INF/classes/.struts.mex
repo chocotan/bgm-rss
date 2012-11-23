@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Struts2Diagram version="2.0">
+  <package name="bgm" location="170,40" size="170,70">
+    <action name="add" location="13,25" size="150,40">
+      <result name="success">
+        <resourceEdge source="success" routing="0" target="auth.jsp" />
+      </result>
+    </action>
+  </package>
+  <webResource name="auth.jsp" path="/auth.jsp" location="0,0" size="150,55" />
+</Struts2Diagram>
+
