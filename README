@@ -2,6 +2,7 @@ bangumi的rss同步到新浪微博的小工具
 有以下功能
 1.输出更新后的rss
   输出的rss和官方rss的不同处在于标题和内容中多了动画名(原rss类似"看过ep."这种不显示番组名)
+  使用方法:bangumi.jsp?id=xxx xxx处替换成你的bangumi帐号id
 2.同步到新浪微博
 测试地址:http://bgm-rss.loli.io
 
