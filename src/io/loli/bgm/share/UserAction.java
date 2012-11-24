@@ -120,6 +120,11 @@ public class UserAction {
 						this.lastUpdate = tempEntries.get(i).getTitle();
 						updateXml(lastUpdate,email);
 					}else{
+						try {
+							TimeUnit.SECONDS.sleep(60);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 						i-=1;
 					}
 				}else{
@@ -152,6 +157,11 @@ public class UserAction {
 					this.lastUpdate = tempEntries.get(i).getTitle();
 					updateXml(lastUpdate,email);
 				}else{
+					try {
+						TimeUnit.SECONDS.sleep(120);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 					i-=1;
 				}
 			}

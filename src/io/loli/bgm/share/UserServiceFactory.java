@@ -12,5 +12,5 @@ public class UserServiceFactory {
 		logger.info("获取UserService");
 		return us;
 	}
-	public static void start(){};
+	public static void start(){}
 }
