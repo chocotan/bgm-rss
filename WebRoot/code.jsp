@@ -16,6 +16,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
   </head>
   
   <body>
+  <h4>目前还处于测试阶段，请先将微博昵称发送到我的邮箱uzumakitenye@gmail.com，否则发不了微博</h4>
   <struts:form action="add">
   	<struts:textfield name="email" label="请输入email地址"></struts:textfield>
   	<struts:textfield name="id" label="bangumi帐号id"></struts:textfield>

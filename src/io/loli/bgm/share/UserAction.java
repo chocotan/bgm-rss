@@ -2,17 +2,12 @@ package io.loli.bgm.share;
 
 import io.loli.bgm.rome.RssFactory;
 
-import java.io.File;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -33,7 +28,7 @@ public class UserAction {
 	private static Logger logger = LogManager.getLogger(UserAction.class);
 	//解析json所用的
 	private static Gson gson = new GsonBuilder().create();
-
+	private boolean isdelete = false;
 	private User user;
 	//用户的bangumi帐号id
 	private String rss;
@@ -94,6 +89,10 @@ public class UserAction {
 			}
 		}
 		for(int i = 0; i<tempEntries.size(); i++){
+			if(isdelete==true){
+				logger.info(email+": stop");
+				return;
+			}
 			if(i != 0){
 				try {
 					//线程休眠120秒, 新浪微博的限制是一小时30条
@@ -102,19 +101,20 @@ public class UserAction {
 					e.printStackTrace();
 				}
 			}
-				
+			if(prefix == null || prefix == ""){
+				prefix=feed.getTitle();
+			}
 			//发布微博并将返回值记录到log
-			String response = update("#" + getPrefix().trim() + "#" + tempEntries.get(i).getTitle() + tempEntries.get(i).getLink());
+			String response = update("#" + prefix + "#" + tempEntries.get(i).getTitle() + tempEntries.get(i).getLink());
 			logger.info(email + ":" + response);
-			System.out.println(tempEntries.get(i).getTitle());
 			//根据指定email更新xml文件中的lastUpdate
-			if(response.contains("created_at")){
+			if(response.contains("created_at")||response.contains("repeat content")){
 				//将发布的content赋值给lastUpdate
 				this.lastUpdate = tempEntries.get(i).getTitle();
 				updateXml(lastUpdate, email);
 			}else{
 				try {
-					TimeUnit.SECONDS.sleep(20);
+					TimeUnit.SECONDS.sleep(60);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -135,43 +135,30 @@ public class UserAction {
 		return Oauth.getString(Oauth.UPDATE_URL, list);
 	}
 	
-	private static JAXBContext context = null;
-	private static Unmarshaller u = null;
-	private static Marshaller m = null;
-	private static File uf =  new File("/home/choco/soft/bangumi/bgm-users.xml");
 	/*
 	 * 根据指定email更新xml文件中的lastUpdate
 	 * @param content lastUpdate的内容
 	 * @param email 指定的email
 	 */
 	public void updateXml(String content,String email){
-		UserInfoList uil = null;
-		try{
-			context = JAXBContext.newInstance(UserInfoList.class);
-			u = context.createUnmarshaller();
-			m = context.createMarshaller();
-		}catch(JAXBException e){
-			e.printStackTrace();
+		Set<UserAction> ual = UserService.readUsers();
+		Iterator<UserAction> itr = ual.iterator();
+		if(ual.size()==0){
+			isdelete=true;
 		}
-		try {
-			uil = (UserInfoList) u.unmarshal(uf);
-		} catch (JAXBException e) {
-			e.printStackTrace();
-		}
-		Iterator<UserInfo> itr = uil.getUserList().iterator();
+		int count= 0;
 		while(itr.hasNext()){
-			UserInfo ui = itr.next();
+			UserAction ui = itr.next();
 			if(ui.getEmail().equals(email.trim())){
 				ui.setLastUpdate(lastUpdate);
-				try {
-					m.marshal(uil, uf);
-				} catch (JAXBException e) {
-					e.printStackTrace();
-				}
 				break;
 			}
+			if(++count==ual.size()){
+				isdelete = true;
+			}
 		}
-	}
+		UserService.saveUsers(ual);
+	} 
 	/*
 	 * 根据认证code获取access_token等信息
 	 * @param code 认证code
@@ -207,9 +194,7 @@ public class UserAction {
 		this.lastUpdate = lastUpdate;
 	}
 	public String getPrefix() {
-		if(prefix == null || prefix.trim().equals(""))
-		return feed.getTitle();
-		else return prefix;
+		return prefix;
 	}
 	public void setPrefix(String prefix) {
 		this.prefix = prefix;

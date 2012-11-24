@@ -1,13 +1,16 @@
 package io.loli.bgm.share;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import org.apache.log4j.LogManager;
@@ -25,24 +28,11 @@ public class UserService {
 	 * 添加一个用户
 	 * @param ua
 	 */
-	public void addUser(UserAction ua){
+	public static void addUser(UserAction ua){
 		users.add(ua);
 	}
-	/*
-	 * 根据email删除一个用户
-	 * @param email 
-	 */
-	public String removeUser(String email){
-		Iterator<UserAction> itr = users.iterator();
-		while(itr.hasNext()){
-			UserAction ua = itr.next();
-			if(ua.getEmail().equals(email.trim())){
-				users.remove(ua);
-				return "SUCCESS";
-			}
-		}
-		return "ERROR";
-	}
+	
+
 	
 	//计数器
 	private int count = 0;
@@ -51,7 +41,9 @@ public class UserService {
 	 */
 	public void execute(){
 		while(true){
-			logger.info("第"+count+++"次更新");
+			initUsers();
+			
+			logger.info("第"+count+++"次更新:目前列表中个数"+users.size());
 			Iterator<UserAction> itr = users.iterator();
 			
 			while(itr.hasNext()){
@@ -91,7 +83,41 @@ public class UserService {
 	private static File uf = new File("/home/choco/soft/bangumi/bgm-users.xml");
 	//根据xml文件初始化users
 	private void initUsers(){
-		users = new HashSet<UserAction>();
+		users = readUsers();
+	}
+	
+	private static JAXBContext context = null;
+	private static Marshaller m = null;
+	
+	public static void saveUsers(Set<UserAction> ual){
+		UserInfoList uil = new UserInfoList();
+		List<UserInfo> list = new ArrayList<UserInfo>();
+		try{
+			context = JAXBContext.newInstance(UserInfoList.class);
+			m = context.createMarshaller();
+		}catch(JAXBException e){
+			e.printStackTrace();
+		}
+		Iterator<UserAction> itr = ual.iterator();
+		while(itr.hasNext()){
+			UserInfo ui = new UserInfo();
+			UserAction ua = itr.next();
+			ui.setAccess_token(ua.getUser().getAccess_token());
+			ui.setEmail(ua.getEmail());
+			ui.setId(ua.getRss());
+			ui.setLastUpdate(ua.getLastUpdate());
+			ui.setPrefix(ua.getPrefix());
+			list.add(ui);
+		}
+		uil.setUserList(list);
+		try {
+			m.marshal(uil, uf);
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		}
+	}
+	public static Set<UserAction> readUsers(){
+		Set<UserAction> uas = new HashSet<UserAction>();
 		if(uf.exists()){
 			JAXBContext context;
 			UserInfoList uil = null;
@@ -102,19 +128,24 @@ public class UserService {
 			}catch(JAXBException e){
 				e.printStackTrace();
 			}
-			Iterator<UserInfo> itr = uil.getUserList().iterator();
-			while(itr.hasNext()){
-				UserInfo ui = itr.next();
-				UserAction ua = new UserAction();
-				ua.setEmail(ui.getEmail());
-				User user = new User();
-				user.setAccess_token(ui.getAccess_token());
-				ua.setLastUpdate(ui.getLastUpdate());
-				ua.setUser(user);
-				ua.setRss(ui.getId());
-				ua.setPrefix(ui.getPrefix());
-				users.add(ua);
+			if(uil.getUserList()!=null){
+				Iterator<UserInfo> itr = uil.getUserList().iterator();
+				while(itr.hasNext()){
+					UserInfo ui = itr.next();
+					UserAction ua = new UserAction();
+					ua.setEmail(ui.getEmail());
+					User user = new User();
+					user.setAccess_token(ui.getAccess_token());
+					ua.setLastUpdate(ui.getLastUpdate());
+					ua.setUser(user);
+					ua.setRss(ui.getId());
+					ua.setPrefix(ui.getPrefix());
+					uas.add(ua);
+				}
+			}else{
+				uil.setUserList(new ArrayList<UserInfo>());
 			}
 		}
+		return uas;
 	}
 }
