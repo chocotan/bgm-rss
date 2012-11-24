@@ -33,9 +33,19 @@ public class AddAction extends ActionSupport{
 		Iterator<UserAction> itr = UserService.getUsers().iterator();
 		while(itr.hasNext()){
 			UserAction ua = itr.next();
-			if(ua.getEmail().equals(email.trim())){
+			if(ua.getEmail().equals(email.trim())&&!ua.isIsdelete()){
 				this.addActionMessage("此邮箱已存在");
 				return ERROR;
+			}
+		}
+		Iterator<UserAction> itr2 = UserService.getUsers().iterator();
+		while(itr2.hasNext()){
+			UserAction ua = itr2.next();
+			if(ua.getEmail().equals(email.trim())&&ua.isIsdelete()){
+				logger.info(email + "已添加");
+				ua.setIsdelete(false);
+				UserService.saveUsers(UserService.getUsers());
+				return SUCCESS;
 			}
 		}
 		//如果不存在此用户
@@ -80,12 +90,12 @@ public class AddAction extends ActionSupport{
 	 * @param email 
 	 */
 	public String remove(){
-		Set<UserAction> users = UserService.readUsers();
+		Set<UserAction> users = UserService.getUsers();
 		Iterator<UserAction> itr = users.iterator();
 		while(itr.hasNext()){
 			UserAction ua = itr.next();
 			if(ua.getEmail().equals(email.trim())){
-				users.remove(ua);
+				ua.setIsdelete(true);
 				UserService.saveUsers(users);
 				logger.info(email+":删除");
 				this.addActionMessage("已删除");

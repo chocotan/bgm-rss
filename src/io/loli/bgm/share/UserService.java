@@ -32,27 +32,50 @@ public class UserService {
 		users.add(ua);
 	}
 	
-
-	
 	//计数器
 	private int count = 0;
 	/*
 	 * 每有一个用户就新建一个线程
 	 */
+	private int activeSize(){
+		Iterator<UserAction> itr = users.iterator();
+		int count = 0;
+		while(itr.hasNext()){
+			if(itr.next().isIsdelete()){
+				count ++;
+			}
+		}
+		return count;
+	}
+	
+	public static Set<UserAction> getActiveUsers(){
+		Set<UserAction> set = readUsers();
+		Iterator<UserAction> itr = set.iterator();
+		Set<UserAction> newSet = new HashSet<UserAction>();
+		while(itr.hasNext()){
+			UserAction ua = itr.next();
+			if(!ua.isIsdelete()){
+				newSet.add(ua);
+			}
+		}
+		return newSet;
+	}
 	public void execute(){
 		while(true){
 			initUsers();
 			
-			logger.info("第"+count+++"次更新:目前列表中个数"+users.size());
+			logger.info("第" + count++ + "次更新:目前列表中个数" + (users.size() - activeSize()));
 			Iterator<UserAction> itr = users.iterator();
 			
 			while(itr.hasNext()){
 				final UserAction ua = itr.next();
-				new Thread(){
-					public void run(){
-						ua.execute();
-					}
-				}.start();
+				if(!ua.isIsdelete()){
+					new Thread(){
+						public void run(){
+							ua.execute();
+						}
+					}.start();
+				}
 			}
 			try {
 				if(users.size() != 0){
@@ -107,6 +130,7 @@ public class UserService {
 			ui.setId(ua.getRss());
 			ui.setLastUpdate(ua.getLastUpdate());
 			ui.setPrefix(ua.getPrefix());
+			ui.setIsdelete(ua.isIsdelete());
 			list.add(ui);
 		}
 		uil.setUserList(list);
@@ -140,6 +164,7 @@ public class UserService {
 					ua.setUser(user);
 					ua.setRss(ui.getId());
 					ua.setPrefix(ui.getPrefix());
+					ua.setIsdelete(ui.isIsdelete());
 					uas.add(ua);
 				}
 			}else{

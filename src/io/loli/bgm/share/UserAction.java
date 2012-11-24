@@ -28,7 +28,7 @@ public class UserAction {
 	private static Logger logger = LogManager.getLogger(UserAction.class);
 	//解析json所用的
 	private static Gson gson = new GsonBuilder().create();
-	private boolean isdelete = false;
+	private boolean isdelete;
 	private User user;
 	//用户的bangumi帐号id
 	private String rss;
@@ -96,7 +96,7 @@ public class UserAction {
 			if(i != 0){
 				try {
 					//线程休眠120秒, 新浪微博的限制是一小时30条
-					TimeUnit.SECONDS.sleep(120);
+					TimeUnit.SECONDS.sleep(10);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -114,7 +114,7 @@ public class UserAction {
 				updateXml(lastUpdate, email);
 			}else{
 				try {
-					TimeUnit.SECONDS.sleep(60);
+					TimeUnit.SECONDS.sleep(10);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -142,8 +142,9 @@ public class UserAction {
 	 */
 	public void updateXml(String content,String email){
 		Set<UserAction> ual = UserService.readUsers();
+		Set<UserAction> temp = UserService.getActiveUsers();
 		Iterator<UserAction> itr = ual.iterator();
-		if(ual.size()==0){
+		if(temp.size()==0){
 			isdelete=true;
 		}
 		int count= 0;
@@ -198,5 +199,11 @@ public class UserAction {
 	}
 	public void setPrefix(String prefix) {
 		this.prefix = prefix;
+	}
+	public boolean isIsdelete() {
+		return isdelete;
+	}
+	public void setIsdelete(boolean isdelete) {
+		this.isdelete = isdelete;
 	}
 }

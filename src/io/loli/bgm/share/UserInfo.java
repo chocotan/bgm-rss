@@ -12,6 +12,7 @@ public class UserInfo {
 	private String id;
 	private String lastUpdate;
 	private String prefix = "";
+	private boolean isdelete = false;
 	public String getEmail() {
 		return email;
 	}
@@ -41,5 +42,11 @@ public class UserInfo {
 	}
 	public void setPrefix(String prefix) {
 		this.prefix = prefix;
+	}
+	public boolean isIsdelete() {
+		return isdelete;
+	}
+	public void setIsdelete(boolean isdelete) {
+		this.isdelete = isdelete;
 	}
 }
