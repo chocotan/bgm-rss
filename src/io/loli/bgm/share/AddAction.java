@@ -31,6 +31,9 @@ public class AddAction extends ActionSupport{
 	private String code;
 	//用户的email
 	private String email;
+	//微博前缀
+	private String prefix;
+	
 	/*
 	 * 添加一个用户
 	 * @see com.opensymphony.xwork2.ActionSupport#execute()
@@ -51,6 +54,7 @@ public class AddAction extends ActionSupport{
 	  	ua.setRss(id);
 	  	ua.setUser(ua.getNewUser(code));
 	  	ua.setEmail(email);
+	  	ua.setPrefix(prefix);
 	  	us.addUser(ua);
 	  	
 	  	UserInfo ui = new UserInfo();
@@ -124,5 +128,11 @@ public class AddAction extends ActionSupport{
 	}
 	public void setEmail(String email) {
 		this.email = email;
+	}
+	public String getPrefix() {
+		return prefix;
+	}
+	public void setPrefix(String prefix) {
+		this.prefix = prefix;
 	}
 }

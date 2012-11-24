@@ -41,6 +41,8 @@ public class UserAction {
 	private SyndFeed feed;
 	//用户的email
 	private String email;
+	//微博前缀
+	private String prefix;
 	//用户最近一次发布的内容
 	private String lastUpdate;
 	public User getUser() {
@@ -108,7 +110,7 @@ public class UserAction {
 							e.printStackTrace();
 						}
 					}
-					logger.info(email + ":" + update("#" + feed.getTitle().trim() + "#" + tempEntries.get(i).getTitle() + " " + tempEntries.get(i).getLink()));
+					logger.info(email + ":" + update("#" + getPrefix().trim() + "#" + tempEntries.get(i).getTitle() + " " + tempEntries.get(i).getLink()));
 				}else{
 					break;
 				}
@@ -125,9 +127,12 @@ public class UserAction {
 					}
 				}
 				
+				if(prefix == null || prefix == ""){
+					prefix = feed.getTitle();
+				}
 				
-				//发布微薄并将返回值记录到log
-				String response = update("#" + feed.getTitle().trim() + "#" + tempEntries.get(i).getTitle());
+				//发布微博并将返回值记录到log
+				String response = update("#" + getPrefix().trim() + "#" + tempEntries.get(i).getTitle());
 				logger.info(email + ":" + update("#" + response + " " + tempEntries.get(i).getLink()));
 				
 				//根据指定email更新xml文件中的lastUpdate
@@ -226,5 +231,11 @@ public class UserAction {
 	}
 	public void setLastUpdate(String lastUpdate) {
 		this.lastUpdate = lastUpdate;
+	}
+	public String getPrefix() {
+		return prefix;
+	}
+	public void setPrefix(String prefix) {
+		this.prefix = prefix;
 	}
 }

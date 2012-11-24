@@ -111,6 +111,7 @@ public class UserService {
 				ua.setLastUpdate(ui.getLastUpdate());
 				ua.setUser(user);
 				ua.setRss(ui.getId());
+				ua.setPrefix(ui.getPrefix());
 				users.add(ua);
 			}
 		}

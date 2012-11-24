@@ -11,6 +11,7 @@ public class UserInfo {
 	private String access_token;
 	private String id;
 	private String lastUpdate;
+	private String prefix = "";
 	public String getEmail() {
 		return email;
 	}
@@ -34,5 +35,11 @@ public class UserInfo {
 	}
 	public void setLastUpdate(String lastUpdate) {
 		this.lastUpdate = lastUpdate;
+	}
+	public String getPrefix() {
+		return prefix;
+	}
+	public void setPrefix(String prefix) {
+		this.prefix = prefix;
 	}
 }
