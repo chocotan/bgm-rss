@@ -6,4 +6,5 @@ public class UserServiceFactory {
 	public static UserService getUserService(){
 		return us;
 	}
+	public static void start(){}
 }
