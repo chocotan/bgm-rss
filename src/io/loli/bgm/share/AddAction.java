@@ -24,7 +24,7 @@ public class AddAction extends ActionSupport{
 	private static Logger logger=LogManager.getLogger(AddAction.class);
 	//用户信息保存的文件
 	private static File uf = new File("/home/choco/soft/bangumi/bgm-users.xml");
-	private static UserService us = new UserService();
+	private static UserService us = UserServiceFactory.getUserService();
 	//用户的bangumi帐号id
 	private String id;
 	//新浪认证返回的code

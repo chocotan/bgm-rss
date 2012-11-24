@@ -101,7 +101,7 @@ public class UserAction {
 		 */
 		if(oldFeed != null){
 			List<SyndEntry> oldEntries = oldFeed.getEntries();
-			for(int i=0; i<tempEntries.size(); i++){
+			for(int i = 0; i<tempEntries.size(); i++){
 				if(!tempEntries.get(i).getTitle().equals(oldEntries.get(0).getTitle())){
 					if(i != 0){
 						try {
