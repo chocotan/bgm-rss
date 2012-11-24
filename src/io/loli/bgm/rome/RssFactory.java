@@ -123,7 +123,7 @@ public class RssFactory {
 		//判断是否是ep的形式
 		if(description.contains("ep")){
 			//截取epid
-			String epid = description.substring(description.indexOf("ep") + 3, description.indexOf("class") - 2);
+			String epid = description.substring(description.indexOf("subject/ep") + 3, description.indexOf("class") - 2);
 			try {
 				//将动画名加入description里
 				newDes = "看过"

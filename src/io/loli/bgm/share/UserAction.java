@@ -110,7 +110,17 @@ public class UserAction {
 							e.printStackTrace();
 						}
 					}
-					logger.info(email + ":" + update("#" + getPrefix().trim() + "#" + tempEntries.get(i).getTitle() + " " + tempEntries.get(i).getLink()));
+					//发布微博并将返回值记录到log
+					String response = update("#" + getPrefix().trim() + "#" + tempEntries.get(i).getTitle() + tempEntries.get(i).getLink());
+					logger.info(email + ":" + response);
+					//根据指定email更新xml文件中的lastUpdate
+					if(response.contains("create_at")){
+						//将发布的content赋值给lastUpdate
+						this.lastUpdate = tempEntries.get(i).getTitle();
+						updateXml(lastUpdate,email);
+					}else{
+						i-=1;
+					}
 				}else{
 					break;
 				}
@@ -132,8 +142,8 @@ public class UserAction {
 				}
 				
 				//发布微博并将返回值记录到log
-				String response = update("#" + getPrefix().trim() + "#" + tempEntries.get(i).getTitle());
-				logger.info(email + ":" + update("#" + response + " " + tempEntries.get(i).getLink()));
+				String response = update("#" + getPrefix().trim() + "#" + tempEntries.get(i).getTitle() + tempEntries.get(i).getLink());
+				logger.info(email + ":" + response);
 				
 				//根据指定email更新xml文件中的lastUpdate
 				if(response.contains("create_at")){

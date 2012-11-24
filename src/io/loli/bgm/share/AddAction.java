@@ -61,6 +61,7 @@ public class AddAction extends ActionSupport{
 	  	ui.setAccess_token(ua.getUser().getAccess_token());
 	  	ui.setEmail(ua.getEmail());
 	  	ui.setId(ua.getRss());
+	  	ui.setPrefix(prefix);
 	  	//读取xml文件将新建的用户保存进去
 	  	JAXBContext context;
 		UserInfoList uil = null;
