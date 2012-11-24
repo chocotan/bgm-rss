@@ -37,17 +37,17 @@ public class AddAction extends ActionSupport{
 	 */
 	public String execute(){
 		//判断是否已经存在此用户
-		Iterator<UserAction> itr=UserService.getUsers().iterator();
+		Iterator<UserAction> itr = UserService.getUsers().iterator();
 		while(itr.hasNext()){
-			UserAction ua=itr.next();
+			UserAction ua = itr.next();
 			if(ua.getEmail().equals(email.trim())){
 				this.addActionMessage("此邮箱已存在");
 				return ERROR;
 			}
 		}
 		//如果不存在此用户
-		logger.info(email+"已添加");
-	  	UserAction ua=new UserAction();
+		logger.info(email + "已添加");
+	  	UserAction ua = new UserAction();
 	  	ua.setRss(id);
 	  	ua.setUser(ua.getNewUser(code));
 	  	ua.setEmail(email);
@@ -59,9 +59,9 @@ public class AddAction extends ActionSupport{
 	  	ui.setId(ua.getRss());
 	  	//读取xml文件将新建的用户保存进去
 	  	JAXBContext context;
-		UserInfoList uil=null;
-		Unmarshaller u =null;
-		Marshaller m =null;
+		UserInfoList uil = null;
+		Unmarshaller u = null;
+		Marshaller m = null;
 		try{
 			context=JAXBContext.newInstance(UserInfoList.class);
 			u = context.createUnmarshaller();
@@ -77,8 +77,8 @@ public class AddAction extends ActionSupport{
 			}
 			uil.getUserList().add(ui);
 		}else{
-			uil=new UserInfoList();
-			List<UserInfo> uilist= new ArrayList<UserInfo>();
+			uil = new UserInfoList();
+			List<UserInfo> uilist = new ArrayList<UserInfo>();
 			uilist.add(ui);
 			uil.setUserList(uilist);
 		}
@@ -94,13 +94,13 @@ public class AddAction extends ActionSupport{
 	 * @return String
 	 */
 	public String remove(){
-		Iterator<UserAction> itr=UserService.getUsers().iterator();
+		Iterator<UserAction> itr = UserService.getUsers().iterator();
 		while(itr.hasNext()){
-			UserAction ua=itr.next();
+			UserAction ua = itr.next();
 			if(ua.getEmail().equals(email.trim())){
 				UserService.getUsers().remove(ua);
 				this.addActionMessage("删除成功");
-				logger.info(email+":删除成功");
+				logger.info(email + ":删除成功");
 				return ERROR;
 			}
 		}

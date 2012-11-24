@@ -30,9 +30,9 @@ import com.sun.syndication.feed.synd.SyndFeed;
  * @author choco(uzumakitenye@gmail.com)
  */
 public class UserAction {
-	private static Logger logger=LogManager.getLogger(UserAction.class);
+	private static Logger logger = LogManager.getLogger(UserAction.class);
 	//解析json所用的
-	private static Gson gson=new GsonBuilder().create();
+	private static Gson gson = new GsonBuilder().create();
 
 	private User user;
 	//用户的bangumi帐号id
@@ -70,52 +70,53 @@ public class UserAction {
 	@SuppressWarnings("unchecked")
 	public void execute(){
 		//获取已经更改过标题和内容的rss
-		feed=RssFactory.getUpdatedFeed(rss);
+		feed = RssFactory.getUpdatedFeed(rss);
 		//items列表
 		List<SyndEntry> entries = feed.getEntries();
 		//临时存储的列表，根据lastUpdate来确定哪些是已经发不过的微博
-		List<SyndEntry> tempEntries = new ArrayList<SyndEntry>();
+		List<SyndEntry> tempEntries = null;
 		Iterator<SyndEntry> itr = entries.iterator();
 		int count=0;
 		//遍历items
 		while(itr.hasNext()){
 			SyndEntry se = itr.next();
 			count++;
+			//如果count和entires的size相等，则所有的items都是未发布过的
+			if(count == entries.size()){
+				tempEntries = entries;
+			}
 			//如果标题相等，则在这之后的所有items都是未发布的
-			if(lastUpdate!=null&&lastUpdate.trim().equals(se.getTitle().trim())){
+			if(lastUpdate != null && lastUpdate.trim().equals(se.getTitle().trim())){
+				tempEntries = new ArrayList<SyndEntry>();
 				while(itr.hasNext()){
 					tempEntries.add(itr.next());
 				}
-			}
-			//如果从未进入过上面的if语句 即count和entires的size相等，则所有的items都是未发布过的
-			if(count==entries.size()){
-				tempEntries=entries;
 			}
 		}
 		/*
 		 * 根据上次获取的feed和上面的tempEntries来判断哪些是已经发布过的微博
 		 * 一直遍历新items直到和旧feed的items的第一项的标题相等
 		 */
-		if(oldFeed!=null){
+		if(oldFeed != null){
 			List<SyndEntry> oldEntries = oldFeed.getEntries();
-			for(int i=0;i<tempEntries.size();i++){
+			for(int i=0; i<tempEntries.size(); i++){
 				if(!tempEntries.get(i).getTitle().equals(oldEntries.get(0).getTitle())){
-					if(i!=0){
+					if(i != 0){
 						try {
 							TimeUnit.SECONDS.sleep(120);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
 					}
-					logger.info(email+":"+update("#"+feed.getTitle().trim()+"#"+tempEntries.get(i).getTitle()+" "+tempEntries.get(i).getLink()));
+					logger.info(email + ":" + update("#" + feed.getTitle().trim() + "#" + tempEntries.get(i).getTitle() + " " + tempEntries.get(i).getLink()));
 				}else{
 					break;
 				}
 			}
 		}else{
 			//如果是第一次获取feed
-			for(int i=0;i<tempEntries.size();i++){
-				if(i!=0){
+			for(int i = 0; i<tempEntries.size(); i++){
+				if(i != 0){
 					try {
 						//一分钟发一条，新浪微博的限制是一小时30条
 						TimeUnit.SECONDS.sleep(60);
@@ -124,15 +125,15 @@ public class UserAction {
 					}
 				}
 				//将即将发布的content赋值给lastUpdate
-				this.lastUpdate=tempEntries.get(i).getTitle();
+				this.lastUpdate = tempEntries.get(i).getTitle();
 				//根据指定email更新xml文件中的lastUpdate
 				updateXml(lastUpdate,email);
 				//发布微薄并将返回值记录到log
-				logger.info(email+":"+update("#"+feed.getTitle().trim()+"#"+tempEntries.get(i).getTitle()+" "+tempEntries.get(i).getLink()));
+				logger.info(email + ":" + update("#" + feed.getTitle().trim() + "#" + tempEntries.get(i).getTitle() + " " + tempEntries.get(i).getLink()));
 			}
 		}
 		
-		oldFeed=feed;
+		oldFeed = feed;
 	}
 	
 	/*
@@ -147,9 +148,9 @@ public class UserAction {
 		return Oauth.getString(Oauth.UPDATE_URL, list);
 	}
 	
-	private static JAXBContext context=null;
-	private static Unmarshaller u =null;
-	private static Marshaller m =null;
+	private static JAXBContext context = null;
+	private static Unmarshaller u = null;
+	private static Marshaller m = null;
 	private static File uf =  new File("/home/choco/soft/bangumi/bgm-users.xml");
 	/*
 	 * 根据指定email更新xml文件中的lastUpdate
@@ -157,7 +158,7 @@ public class UserAction {
 	 * @param email 指定的email
 	 */
 	public void updateXml(String content,String email){
-		UserInfoList uil=null;
+		UserInfoList uil = null;
 		try{
 			context = JAXBContext.newInstance(UserInfoList.class);
 			u = context.createUnmarshaller();
@@ -170,9 +171,9 @@ public class UserAction {
 		} catch (JAXBException e) {
 			e.printStackTrace();
 		}
-		Iterator<UserInfo> itr=uil.getUserList().iterator();
+		Iterator<UserInfo> itr = uil.getUserList().iterator();
 		while(itr.hasNext()){
-			UserInfo ui=itr.next();
+			UserInfo ui = itr.next();
 			if(ui.getEmail().equals(email.trim())){
 				ui.setLastUpdate(lastUpdate);
 				try {
@@ -196,8 +197,8 @@ public class UserAction {
 		list.add(new BasicNameValuePair("grant_type","authorization_code"));
 		list.add(new BasicNameValuePair("code",code));
 		list.add(new BasicNameValuePair("redirect_uri",Oauth.REDIRECTED_URL));
-		String json=Oauth.getString(Oauth.ACCESS_TOKEN_URL, list);
-		Type type=new TypeToken<User>(){}.getType();//用作参数传递给gson.fromJson()方法
+		String json = Oauth.getString(Oauth.ACCESS_TOKEN_URL, list);
+		Type type = new TypeToken<User>(){}.getType();//用作参数传递给gson.fromJson()方法
 		return (User)(gson.fromJson(json,type));
 	}
 	

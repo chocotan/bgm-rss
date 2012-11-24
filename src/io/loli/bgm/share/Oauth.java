@@ -36,14 +36,14 @@ public class Oauth {
 	 * @return String 服务器返回值
 	 */
 	public static String getString(String url , List<NameValuePair> list){
-		HttpClient httpclient=WebClientDevWrapper.wrapClient(new DefaultHttpClient());
+		HttpClient httpclient = WebClientDevWrapper.wrapClient(new DefaultHttpClient());
 		//url就是post提交的网址
-		HttpPost httppost=new HttpPost(url);
+		HttpPost httppost = new HttpPost(url);
 		//设置UA防止被认为是手机访问的
 		httppost.setHeader("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 5.1; zh-CN) AppleWebKit/535.12 (KHTML, like Gecko) Chrome/18.0.966.0 Safari/535.12"); 
 		UrlEncodedFormEntity uefEntity = null;//表单对象
 		try {
-			uefEntity=new UrlEncodedFormEntity(list,"UTF-8");
+			uefEntity = new UrlEncodedFormEntity(list,"UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
@@ -57,7 +57,7 @@ public class Oauth {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		HttpEntity entity=response.getEntity();
+		HttpEntity entity = response.getEntity();
 		//result就是服务器返回的值了
 		String result = null;
 		try {

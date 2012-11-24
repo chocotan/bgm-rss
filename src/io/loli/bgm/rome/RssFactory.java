@@ -27,11 +27,11 @@ import com.sun.syndication.io.WireFeedOutput;
 import com.sun.syndication.io.XmlReader;
 
 public class RssFactory {
-	private static String content_encoding=null;
+	private static String content_encoding = null;
 	//获取已经更改后的feed
 	public static SyndFeed getUpdatedFeed(String id){
 		
-		SyndFeed feed=getFeed(id);
+		SyndFeed feed = getFeed(id);
 		@SuppressWarnings("unchecked")
 		List<SyndEntry> entries = feed.getEntries();
 		Iterator<SyndEntry> itr = entries.iterator();

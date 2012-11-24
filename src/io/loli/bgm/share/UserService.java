@@ -18,9 +18,9 @@ import org.apache.log4j.Logger;
  * @author choco(uzumakitenye@gmail.com)
  */
 public class UserService {
-	private static Logger logger=LogManager.getLogger(UserService.class);
+	private static Logger logger = LogManager.getLogger(UserService.class);
 	//此list就是需要同步到微博的帐号list
-	private static Set<UserAction> users=null;
+	private static Set<UserAction> users = null;
 	/* 
 	 * 添加一个用户
 	 * @param ua
@@ -33,9 +33,9 @@ public class UserService {
 	 * @param email 
 	 */
 	public String removeUser(String email){
-		Iterator<UserAction> itr=users.iterator();
+		Iterator<UserAction> itr = users.iterator();
 		while(itr.hasNext()){
-			UserAction ua=itr.next();
+			UserAction ua = itr.next();
 			if(ua.getEmail().equals(email.trim())){
 				users.remove(ua);
 				return "SUCCESS";
@@ -45,17 +45,17 @@ public class UserService {
 	}
 	
 	//计数器
-	private int count=0;
+	private int count = 0;
 	/*
 	 * 每有一个用户就新建一个线程
 	 */
 	public void execute(){
 		while(true){
 			logger.info("第"+count+++"次更新");
-			Iterator<UserAction> itr=users.iterator();
+			Iterator<UserAction> itr = users.iterator();
 			
 			while(itr.hasNext()){
-				final UserAction ua=itr.next();
+				final UserAction ua = itr.next();
 				new Thread(){
 					public void run(){
 						ua.execute();
@@ -63,7 +63,7 @@ public class UserService {
 				}.start();
 			}
 			try {
-				if(users.size()!=0){
+				if(users.size() != 0){
 					//新浪限制一小时30条微博，此程序是20条/2400秒
 					TimeUnit.SECONDS.sleep(2400);
 				}else{
@@ -87,24 +87,24 @@ public class UserService {
 		UserService.users = users;
 	}
 	//用户列表文件
-	private static File uf =  new File("/home/choco/soft/bangumi/bgm-users.xml");
+	private static File uf = new File("/home/choco/soft/bangumi/bgm-users.xml");
 	//根据xml文件初始化users
 	private void initUsers(){
-		users=new HashSet<UserAction>();
+		users = new HashSet<UserAction>();
 		if(uf.exists()){
 			JAXBContext context;
-			UserInfoList uil=null;
+			UserInfoList uil = null;
 			try{
-				context=JAXBContext.newInstance(UserInfoList.class);
+				context = JAXBContext.newInstance(UserInfoList.class);
 				Unmarshaller u = context.createUnmarshaller();
 				uil = (UserInfoList) u.unmarshal(uf);
 			}catch(JAXBException e){
 				e.printStackTrace();
 			}
-			Iterator<UserInfo> itr=uil.getUserList().iterator();
+			Iterator<UserInfo> itr = uil.getUserList().iterator();
 			while(itr.hasNext()){
-				UserInfo ui=itr.next();
-				UserAction ua=new UserAction();
+				UserInfo ui = itr.next();
+				UserAction ua = new UserAction();
 				ua.setEmail(ui.getEmail());
 				User user = new User();
 				user.setAccess_token(ui.getAccess_token());
