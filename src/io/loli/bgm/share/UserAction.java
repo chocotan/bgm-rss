@@ -71,6 +71,7 @@ public class UserAction {
 	 */
 	@SuppressWarnings("unchecked")
 	public void execute(){
+		logger.info(email + "start");
 		//获取已经更改过标题和内容的rss
 		feed = RssFactory.getUpdatedFeed(rss);
 		//items列表
