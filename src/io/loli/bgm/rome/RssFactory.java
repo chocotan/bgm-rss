@@ -13,8 +13,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.swing.text.html.HTML;
-
 import com.sun.syndication.feed.rss.Channel;
 import com.sun.syndication.feed.rss.Description;
 import com.sun.syndication.feed.rss.Guid;
