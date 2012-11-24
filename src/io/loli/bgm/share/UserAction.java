@@ -63,15 +63,12 @@ public class UserAction {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	//上一次读取的feed
-	private SyndFeed oldFeed;
-	
 	/*
 	 * 发布一条微博
 	 */
 	@SuppressWarnings("unchecked")
 	public void execute(){
-		logger.info(email + "start");
+		logger.info(email + ": start");
 		//获取已经更改过标题和内容的rss
 		feed = RssFactory.getUpdatedFeed(rss);
 		//items列表
@@ -96,78 +93,34 @@ public class UserAction {
 				}
 			}
 		}
-		/*
-		 * 根据上次获取的feed和上面的tempEntries来判断哪些是已经发布过的微博
-		 * 一直遍历新items直到和旧feed的items的第一项的标题相等
-		 */
-		if(oldFeed != null){
-			List<SyndEntry> oldEntries = oldFeed.getEntries();
-			for(int i = 0; i<tempEntries.size(); i++){
-				if(!tempEntries.get(i).getTitle().equals(oldEntries.get(0).getTitle())){
-					if(i != 0){
-						try {
-							TimeUnit.SECONDS.sleep(120);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-					//发布微博并将返回值记录到log
-					String response = update("#" + getPrefix().trim() + "#" + tempEntries.get(i).getTitle() + tempEntries.get(i).getLink());
-					logger.info(email + ":" + response);
-					//根据指定email更新xml文件中的lastUpdate
-					if(response.contains("create_at")){
-						//将发布的content赋值给lastUpdate
-						this.lastUpdate = tempEntries.get(i).getTitle();
-						updateXml(lastUpdate,email);
-					}else{
-						try {
-							TimeUnit.SECONDS.sleep(60);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-						i-=1;
-					}
-				}else{
-					break;
+		for(int i = 0; i<tempEntries.size(); i++){
+			if(i != 0){
+				try {
+					//线程休眠120秒, 新浪微博的限制是一小时30条
+					TimeUnit.SECONDS.sleep(120);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
 			}
-		}else{
-			//如果是第一次获取feed
-			for(int i = 0; i<tempEntries.size(); i++){
-				if(i != 0){
-					try {
-						//线程休眠120秒, 新浪微博的限制是一小时30条
-						TimeUnit.SECONDS.sleep(120);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
 				
-				if(prefix == null || prefix == ""){
-					prefix = feed.getTitle();
+			//发布微博并将返回值记录到log
+			String response = update("#" + getPrefix().trim() + "#" + tempEntries.get(i).getTitle() + tempEntries.get(i).getLink());
+			logger.info(email + ":" + response);
+			System.out.println(tempEntries.get(i).getTitle());
+			//根据指定email更新xml文件中的lastUpdate
+			if(response.contains("created_at")){
+				//将发布的content赋值给lastUpdate
+				this.lastUpdate = tempEntries.get(i).getTitle();
+				updateXml(lastUpdate, email);
+			}else{
+				try {
+					TimeUnit.SECONDS.sleep(20);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
-				
-				//发布微博并将返回值记录到log
-				String response = update("#" + getPrefix().trim() + "#" + tempEntries.get(i).getTitle() + tempEntries.get(i).getLink());
-				logger.info(email + ":" + response);
-				
-				//根据指定email更新xml文件中的lastUpdate
-				if(response.contains("create_at")){
-					//将发布的content赋值给lastUpdate
-					this.lastUpdate = tempEntries.get(i).getTitle();
-					updateXml(lastUpdate,email);
-				}else{
-					try {
-						TimeUnit.SECONDS.sleep(120);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					i-=1;
-				}
+				i-=1;
 			}
 		}
-		
-		oldFeed = feed;
 	}
 	
 	/*
@@ -254,7 +207,9 @@ public class UserAction {
 		this.lastUpdate = lastUpdate;
 	}
 	public String getPrefix() {
-		return prefix;
+		if(prefix == null || prefix.trim().equals(""))
+		return feed.getTitle();
+		else return prefix;
 	}
 	public void setPrefix(String prefix) {
 		this.prefix = prefix;

@@ -13,6 +13,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.text.html.HTML;
+
 import com.sun.syndication.feed.rss.Channel;
 import com.sun.syndication.feed.rss.Description;
 import com.sun.syndication.feed.rss.Guid;
@@ -123,7 +125,7 @@ public class RssFactory {
 		//判断是否是ep的形式
 		if(description.contains("ep")){
 			//截取epid
-			String epid = description.substring(description.indexOf("subject/ep") + 3, description.indexOf("class") - 2);
+			String epid = description.substring(description.indexOf("subject/ep") + 11, description.indexOf("class") - 2);
 			try {
 				//将动画名加入description里
 				newDes = "看过"
@@ -168,6 +170,6 @@ public class RssFactory {
 	    //页面源代码
 	    String html=sb.toString();
 	    //截取动画名并删除两端空格
-	    return html.substring(html.indexOf("nameSingle") + 15, html.indexOf("</h1>")).trim();
+	    return html.substring(html.indexOf("nameSingle") +15, html.indexOf("</h1>")).trim();
 	}
 }
