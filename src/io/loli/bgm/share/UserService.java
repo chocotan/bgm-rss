@@ -77,6 +77,7 @@ public class UserService {
 	}
 	//构造器, 用于初始化
 	public UserService(){
+		logger.info("程序开始运行");
 		initUsers();
 		new Thread(){public void run(){execute();}}.start();
 	}

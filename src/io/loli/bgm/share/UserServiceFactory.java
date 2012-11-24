@@ -9,7 +9,8 @@ public class UserServiceFactory {
 	//classloader加载UserServiceFactory时初始化，整个程序开始
 	private final static UserService us = new UserService();
 	public static UserService getUserService(){
-		logger.info("程序开始");
+		logger.info("获取UserService");
 		return us;
 	}
+	public static void start(){};
 }
