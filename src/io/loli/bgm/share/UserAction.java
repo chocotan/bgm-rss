@@ -96,16 +96,18 @@ public class UserAction {
 			if(i != 0){
 				try {
 					//线程休眠120秒, 新浪微博的限制是一小时30条
-					TimeUnit.SECONDS.sleep(10);
+					TimeUnit.SECONDS.sleep(120);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
-			if(prefix == null || prefix == ""){
-				prefix=feed.getTitle();
+			if(prefix == null || prefix.trim().equals("")){
+				prefix = "#" + feed.getTitle() + "#";
+			}else{
+				prefix = "#" + prefix.trim() + "#";
 			}
 			//发布微博并将返回值记录到log
-			String response = update("#" + prefix + "#" + tempEntries.get(i).getTitle() + tempEntries.get(i).getLink());
+			String response = update(prefix + tempEntries.get(i).getTitle() + tempEntries.get(i).getLink());
 			logger.info(email + ":" + response);
 			//根据指定email更新xml文件中的lastUpdate
 			if(response.contains("created_at")||response.contains("repeat content")){
@@ -114,7 +116,7 @@ public class UserAction {
 				updateXml(lastUpdate, email);
 			}else{
 				try {
-					TimeUnit.SECONDS.sleep(10);
+					TimeUnit.SECONDS.sleep(120);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
