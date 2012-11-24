@@ -64,8 +64,8 @@ public class UserService {
 			}
 			try {
 				if(users.size() != 0){
-					//新浪限制一小时30条微博，此程序是20条/2400秒
-					TimeUnit.SECONDS.sleep(2400);
+					//新浪限制一小时30条微博
+					TimeUnit.SECONDS.sleep(1200);
 				}else{
 					//如果users为空则每过60秒就检测一次是否有用户
 					TimeUnit.SECONDS.sleep(60);

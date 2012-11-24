@@ -30,7 +30,6 @@ public class RssFactory {
 	private static String content_encoding = null;
 	//获取已经更改后的feed
 	public static SyndFeed getUpdatedFeed(String id){
-		
 		SyndFeed feed = getFeed(id);
 		@SuppressWarnings("unchecked")
 		List<SyndEntry> entries = feed.getEntries();

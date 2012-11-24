@@ -118,18 +118,26 @@ public class UserAction {
 			for(int i = 0; i<tempEntries.size(); i++){
 				if(i != 0){
 					try {
-						//一分钟发一条，新浪微博的限制是一小时30条
-						TimeUnit.SECONDS.sleep(60);
+						//线程休眠120秒, 新浪微博的限制是一小时30条
+						TimeUnit.SECONDS.sleep(120);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 				}
-				//将即将发布的content赋值给lastUpdate
-				this.lastUpdate = tempEntries.get(i).getTitle();
-				//根据指定email更新xml文件中的lastUpdate
-				updateXml(lastUpdate,email);
+				
+				
 				//发布微薄并将返回值记录到log
-				logger.info(email + ":" + update("#" + feed.getTitle().trim() + "#" + tempEntries.get(i).getTitle() + " " + tempEntries.get(i).getLink()));
+				String response = update("#" + feed.getTitle().trim() + "#" + tempEntries.get(i).getTitle());
+				logger.info(email + ":" + update("#" + response + " " + tempEntries.get(i).getLink()));
+				
+				//根据指定email更新xml文件中的lastUpdate
+				if(response.contains("create_at")){
+					//将发布的content赋值给lastUpdate
+					this.lastUpdate = tempEntries.get(i).getTitle();
+					updateXml(lastUpdate,email);
+				}else{
+					i-=1;
+				}
 			}
 		}
 		
