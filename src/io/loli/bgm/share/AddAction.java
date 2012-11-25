@@ -34,7 +34,13 @@ public class AddAction extends ActionSupport{
 		while(itr.hasNext()){
 			UserAction ua = itr.next();
 			if(ua.getEmail().equals(email.trim())&&!ua.isIsdelete()){
-				this.addActionMessage("此邮箱已存在");
+				this.addActionMessage("此邮箱已存在,token已更新");
+				ua.setIsdelete(false);
+			  	ua.setRss(id);
+			  	ua.setUser(ua.getNewUser(code));
+			  	ua.setEmail(email);
+			  	ua.setPrefix(prefix);
+				UserService.saveUsers(UserService.getUsers());
 				return ERROR;
 			}
 		}
@@ -44,6 +50,10 @@ public class AddAction extends ActionSupport{
 			if(ua.getEmail().equals(email.trim())&&ua.isIsdelete()){
 				logger.info(email + "已添加");
 				ua.setIsdelete(false);
+			  	ua.setRss(id);
+			  	ua.setUser(ua.getNewUser(code));
+			  	ua.setEmail(email);
+			  	ua.setPrefix(prefix);
 				UserService.saveUsers(UserService.getUsers());
 				return SUCCESS;
 			}

@@ -60,6 +60,22 @@ public class UserService {
 		}
 		return newSet;
 	}
+	class MyThread extends Thread{
+		private UserAction ua;
+		
+		public UserAction getUa() {
+			return ua;
+		}
+
+		public void setUa(UserAction ua) {
+			this.ua = ua;
+		}
+
+		public void run(){
+			ua.execute();
+		}
+	}
+	private final static List<MyThread> tl = new ArrayList<MyThread>();
 	public void execute(){
 		while(true){
 			initUsers();
@@ -70,17 +86,21 @@ public class UserService {
 			while(itr.hasNext()){
 				final UserAction ua = itr.next();
 				if(!ua.isIsdelete()){
-					new Thread(){
-						public void run(){
-							ua.execute();
-						}
-					}.start();
+					MyThread mt=new MyThread();
+					mt.setUa(ua);
+					mt.start();
+					tl.add(mt);
 				}
 			}
 			try {
 				if(users.size() != 0){
 					//新浪限制一小时30条微博
-					TimeUnit.SECONDS.sleep(1200);
+					TimeUnit.SECONDS.sleep(2500);
+					for(int i=0;i<tl.size();i++){
+						if(tl.get(i).isAlive()||!tl.get(i).isInterrupted()){
+							tl.get(i).interrupt();
+						}
+					}
 				}else{
 					//如果users为空则每过60秒就检测一次是否有用户
 					TimeUnit.SECONDS.sleep(60);
