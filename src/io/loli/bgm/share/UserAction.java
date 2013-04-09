@@ -2,6 +2,8 @@ package io.loli.bgm.share;
 
 import io.loli.bgm.rome.RssFactory;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -9,10 +11,25 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.ParseException;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+
+import twitter4j.Status;
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
+import twitter4j.conf.ConfigurationBuilder;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -101,13 +118,28 @@ public class UserAction {
 					e.printStackTrace();
 				}
 			}
+			String temp = prefix;
 			if(prefix == null || prefix.trim().equals("")){
-				prefix = "#" + feed.getTitle() + "#";
+				temp = "#" + feed.getTitle()+"#";
 			}else{
-				prefix = "#" + prefix.trim() + "#";
+				temp = "#" + prefix.trim()+"#";
 			}
-			//发布微博并将返回值记录到log
-			String response = update(prefix + tempEntries.get(i).getTitle() + tempEntries.get(i).getLink());
+		
+			String response="";
+			String t =shortUrl(tempEntries.get(i).getLink());
+			if(t==null||t.contains("null")||t.equals(null)){
+				t=tempEntries.get(i).getLink();
+			}
+			if(email.contains("uzumakitenye")){
+				
+				updateTwitter("#bangumi " + "天羽ちよこ " +tempEntries.get(i).getTitle() + " " + t);
+				
+				response = update("#bangumi#"+ "天羽ちよこ " + tempEntries.get(i).getTitle() + t);
+			}else{
+				//发布微博并将返回值记录到log
+				response = update(temp + tempEntries.get(i).getTitle() + tempEntries.get(i).getLink());
+			}
+			
 			logger.info(email + ":" + response);
 			//根据指定email更新xml文件中的lastUpdate
 			if(response.contains("created_at")||response.contains("repeat content")){
@@ -137,6 +169,23 @@ public class UserAction {
 		return Oauth.getString(Oauth.UPDATE_URL, list);
 	}
 	
+	public void updateTwitter(String content){
+		ConfigurationBuilder cb = new ConfigurationBuilder();
+        cb.setDebugEnabled(true)
+          .setOAuthConsumerKey("mVwLkzmd9OfN6qhh7bjqvg")
+          .setOAuthConsumerSecret("1Cmb8UcWR341d5umHVO9wxAf7wlM9UKB8659vDHMghY")
+          .setOAuthAccessToken("201129422-EktZ2sUx8vkQQGa6piNYj74q2gBfJeXTABNNlRCw")
+          .setOAuthAccessTokenSecret("KPAro8tLbW70Mw0u1mwWKwHnlwQ1rgQH3JdflAIEiXE");
+        TwitterFactory tf = new TwitterFactory(cb.build());
+        Twitter twitter = tf.getInstance();
+        try {
+			@SuppressWarnings("unused")
+			Status status = twitter.updateStatus(content);
+		} catch (TwitterException e) {
+			e.printStackTrace();
+		}
+        logger.info("twitter update succeed , content: " + content);
+	}
 	/*
 	 * 根据指定email更新xml文件中的lastUpdate
 	 * @param content lastUpdate的内容
@@ -207,5 +256,72 @@ public class UserAction {
 	}
 	public void setIsdelete(boolean isdelete) {
 		this.isdelete = isdelete;
+	}
+	
+	private String shortUrl(String url){
+		HttpClient httpclient = WebClientDevWrapper.wrapClient(new DefaultHttpClient());
+		//url就是post提交的网址
+		HttpPost httppost = new HttpPost("https://www.googleapis.com/urlshortener/v1/url");
+		//设置UA防止被认为是手机访问的
+		httppost.setHeader("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 5.1; zh-CN) AppleWebKit/535.12 (KHTML, like Gecko) Chrome/18.0.966.0 Safari/535.12"); 
+		StringEntity uefEntity = null;//表单对象
+	//	List<NameValuePair> list = new ArrayList<NameValuePair>();
+	//	list.add(new BasicNameValuePair("key", "AIzaSyDWINK2MYMSlePiSbA4YDp7PHD5vhm2pBk"));
+		try {
+			uefEntity = new StringEntity("{\"longUrl\":\""+url+"\"}");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		uefEntity.setContentType("application/json");
+		httppost.setEntity(uefEntity);
+		//提交
+		HttpResponse response = null;
+		try {
+			response = httpclient.execute(httppost);
+		} catch (ClientProtocolException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		HttpEntity entity = response.getEntity();
+		//result就是服务器返回的值了
+		String result = null;
+		try {
+			result = EntityUtils.toString(entity);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		Type type = new TypeToken<UrlShort>(){}.getType();
+		return ((UrlShort)(gson.fromJson(result,type))).getId();
+	}
+	class UrlShort{
+		private String kind;
+		private String id;
+		private String longUrl;
+		public String getKind() {
+			return kind;
+		}
+		public void setKind(String kind) {
+			this.kind = kind;
+		}
+		public String getId() {
+			return id;
+		}
+		public void setId(String id) {
+			this.id = id;
+		}
+		public String getLongUrl() {
+			return longUrl;
+		}
+		public void setLongUrl(String longUrl) {
+			this.longUrl = longUrl;
+		}
+	}
+	public static void main(String []args){
+		String s=null;
+		if(s==null)
+		System.out.println(s);
 	}
 }

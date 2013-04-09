@@ -33,6 +33,7 @@ public class RssFactory {
 		SyndFeed feed = getFeed(id);
 		@SuppressWarnings("unchecked")
 		List<SyndEntry> entries = feed.getEntries();
+		Collections.reverse(entries);
 		Iterator<SyndEntry> itr = entries.iterator();
 		while(itr.hasNext()){
 			SyndEntry temp = itr.next();
@@ -41,6 +42,8 @@ public class RssFactory {
 		}
 		return feed;
 	}
+	
+	
 	//获取更新前的feed
 	public static SyndFeed getFeed(String id){
 		SyndFeedInput input = new SyndFeedInput();        
@@ -63,7 +66,6 @@ public class RssFactory {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		Collections.reverse(feed.getEntries());
 		return feed;
 	}
 	//获取更新后的channel

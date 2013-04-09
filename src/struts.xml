@@ -2,7 +2,7 @@
 <!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.1//EN" "http://struts.apache.org/dtds/struts-2.1.dtd">
 <struts>
 
-	<package name="bgm" extends="struts-default">
+	<package name="bgm" extends="struts-default" namespace="/">
 		<action name="add" class="io.loli.bgm.share.AddAction">
 			<result name="success">/success.jsp</result>
 			<result name="error">/error.jsp</result></action></package></struts>    

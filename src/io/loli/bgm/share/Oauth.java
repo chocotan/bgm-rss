@@ -65,7 +65,6 @@ public class Oauth {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return result;

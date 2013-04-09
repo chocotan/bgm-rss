@@ -123,7 +123,7 @@ public class UserService {
 		UserService.users = users;
 	}
 	//用户列表文件
-	private static File uf = new File("/home/choco/soft/bangumi/bgm-users.xml");
+	private static File uf = new File("/var/lib/openshift/51639f8d4382ece98d0005da/jbossews-2.0/jbossews-2.0/webapps/bgm/bgm.xml");
 	//根据xml文件初始化users
 	private void initUsers(){
 		users = readUsers();
